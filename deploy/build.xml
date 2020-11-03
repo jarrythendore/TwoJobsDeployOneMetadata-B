@@ -1,0 +1,76 @@
+<project name="Adtalem" default="RetrieveCode" basedir="." xmlns:sf="antlib:com.salesforce">
+
+    <property file="build.properties"/>
+    <property environment="env"/>
+
+    <!-- Setting default value for username, password and session id properties to empty string 
+         so unset values are treated as empty. Without this, ant expressions such as ${sf.username}
+         will be treated literally.
+    -->
+    <condition property="sf.username" value=""> <not> <isset property="sf.username"/> </not> </condition>
+    <condition property="sf.password" value=""> <not> <isset property="sf.password"/> </not> </condition>
+    <condition property="sf.sessionId" value=""> <not> <isset property="sf.sessionId"/> </not> </condition>
+
+    <taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce">
+        <classpath>
+            <pathelement location="./ant-salesforce.jar"/>
+        </classpath>
+    </taskdef>
+
+    <target name="devDeployToTargetNotestRun">
+        <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../force-app/main/default" rollbackOnError="true" testLevel="NoTestRun" checkOnly="false" pollWaitMillis="100000"/>
+    </target>
+
+    <target name="devDeployToTargetRunLocalTest">
+        <sf:deploy username="${sf.username}" password="${sf.password}" serverurl="${sf.serverurl}" maxPoll="${sf.maxPoll}" deployRoot="../force-app/main/default" rollbackOnError="true" testLevel="RunLocalTests" checkOnly="false" pollWaitMillis="100000"/>
+    </target>
+
+    <!-- UAT Deployment -->
+    <target name="deployToTarget">
+        <sf:deploy username="${sf2.username}" password="${sf2.password}" serverurl="${sf.serverurl}" maxPoll="${sf2.maxPoll}" deployRoot="../force-app/main/default" rollbackOnError="true" checkOnly="false" pollWaitMillis="100000"/>
+    </target>
+
+    <target name="validateDeployToTarget">
+        <sf:deploy username="${sf2.username}" password="${sf2.password}" serverurl="${sf.serverurl}" maxPoll="${sf2.maxPoll}" deployRoot="../force-app/main/default" rollbackOnError="true" checkOnly="true" pollWaitMillis="100000"/>
+    </target>
+
+    <target name="validateTestDeployToTarget">
+        <sf:deploy username="${sf2.username}" password="${sf2.password}" serverurl="${sf.serverurl}" maxPoll="${sf2.maxPoll}" deployRoot="../force-app/main/default" testLevel="RunLocalTests" rollbackOnError="true" checkOnly="true" pollWaitMillis="100000"/>
+    </target>
+
+    <!-- Does a quick deployment with no tests run of an already validated deployment within the last 10 days -->
+    <target name="quickDeployToTarget">
+        <sf:deployRecentValidation username="${sf2.username}" password="${sf2.password}" serverurl="${sf2.serverurl}" maxPoll="${sf2.maxPoll}" recentValidationId="${sftarget.​recentValidationId}" pollWaitMillis="100000"/>
+    </target>
+
+
+    <target name="RetrieveCode">
+        <!-- Retrieve the contents listed in the file codepkg/package.xml into the codepkg directory -->
+        <sf:retrieve username="${sf2.username}" password="${sf2.password}" serverurl="${sf.serverurl}" maxPoll="${sf2.maxPoll}" retrieveTarget="../force-app/main/default" unpackaged="../manifest/package.xml" trace="true" pollWaitMillis="100000"/>
+    </target>
+
+    <!-- PROD deployment -->
+    <target name="ProdDeployToTarget">
+        <sf:deploy username="${prodSf.username}" password="${prodSf.password}" serverurl="${prodSf.serverurl}" maxPoll="${prodSf.maxPoll}" deployRoot="../force-app/main/default" rollbackOnError="true" checkOnly="false" pollWaitMillis="100000"/>
+    </target>
+
+    <target name="ProdValidateDeployToTarget">
+        <sf:deploy username="${prodSf.username}" password="${prodSf.password}" serverurl="${prodSf.serverurl}" maxPoll="${prodSf.maxPoll}" deployRoot="../force-app/main/default" rollbackOnError="true" checkOnly="true" pollWaitMillis="100000"/>
+    </target>
+
+    <target name="ProdValidateTestDeployToTarget">
+        <sf:deploy username="${prodSf.username}" password="${prodSf.password}" serverurl="${prodSf.serverurl}" maxPoll="${prodSf.maxPoll}" deployRoot="../force-app/main/default" testLevel="RunLocalTests" rollbackOnError="true" checkOnly="true" pollWaitMillis="100000"/>
+    </target>
+
+    <!-- Does a quick deployment with no tests run of an already validated deployment within the last 10 days -->
+    <target name="ProdQuickDeployToTarget">
+        <sf:deployRecentValidation username="${prodSf.username}" password="${prodSf.password}" serverurl="${prodSf.serverurl}" maxPoll="${prodSf.maxPoll}" recentValidationId="${sftarget.​recentValidationId}" pollWaitMillis="100000"/>
+    </target>
+
+
+    <target name="ProdRetrieveCode">
+        <!-- Retrieve the contents listed in the file codepkg/package.xml into the codepkg directory -->
+        <sf:retrieve username="${prodSf.username}" password="${prodSf.password}" serverurl="${prodSf.serverurl}" maxPoll="${prodSf.maxPoll}" retrieveTarget="../force-app/main/default" unpackaged="../manifest/package.xml" trace="true" pollWaitMillis="100000"/>
+    </target>
+    
+</project>
